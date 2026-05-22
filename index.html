@@ -51,57 +51,56 @@
     </div>
 
     <script>
-        async function startScanning() {
+      async function startScanning() {
             const textArea = document.getElementById('inputLinks');
             const links = textArea.value.split('\n').filter(l => l.trim() !== '');
             const tableBody = document.getElementById('tableBody');
             const btn = document.getElementById('btnScan');
             
+            // Lấy 2 cái ô tổng để chuẩn bị nhảy số
+            const totalViewsElem = document.getElementById('totalViews');
+            const totalLikesElem = document.getElementById('totalLikes');
+            
+            let totalViews = 0;
+            let totalLikes = 0;
+
             if(links.length === 0) return alert('Dán link vào đã bạn ơi!');
 
             btn.disabled = true;
             btn.innerText = "Đang quét...";
-            tableBody.innerHTML = ''; // Clear cũ
+            tableBody.innerHTML = ''; 
 
             for (let i = 0; i < links.length; i++) {
                 const row = tableBody.insertRow();
-                row.innerHTML = `<td class="p-3 border">${i+1}</td><td class="p-3 border text-center" colspan="6">Đang lấy dữ liệu...</td>`;
+                row.innerHTML = `<td class="p-3 border">${i+1}</td><td class="p-3 border text-center" colspan="7">Đang lấy dữ liệu...</td>`;
                 
                 try {
-                    // GIẢ LẬP: Thay đoạn này bằng API thật của Tikwm hoặc RapidAPI
-                    // Ví dụ dùng API miễn phí của Tikwm.com: https://www.tikwm.com/api/
                     const response = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(links[i])}`);
                     const res = await response.json();
                     const data = res.data;
 
+                    // Cập nhật biến tổng
+                    totalViews += data.play_count;
+                    totalLikes += data.digg_count;
+
+                    // Cho số nhảy lên giao diện luôn
+                    totalViewsElem.innerText = totalViews.toLocaleString();
+                    totalLikesElem.innerText = totalLikes.toLocaleString();
+
                     row.innerHTML = `
                         <td class="p-3 border">${i+1}</td>
-                        <td class="p-3 border"><img src="${data.cover}" class="w-12 h-12 object-cover rounded"></td>
+                        <td class="p-3 border"><img src="${data.cover}" class="w-12 h-12 object-cover rounded mx-auto"></td>
                         <td class="p-3 border text-sm">${data.title.substring(0, 50)}...</td>
                         <td class="p-3 border font-bold text-blue-600">${data.play_count.toLocaleString()}</td>
-                        <td class="p-3 border text-pink-600">${data.digg_count.toLocaleString()}</td>
+                        <td class="p-3 border font-bold text-pink-600">${data.digg_count.toLocaleString()}</td>
                         <td class="p-3 border">${data.comment_count.toLocaleString()}</td>
-                        <td class="p-3 border"><a href="${links[i]}" target="_blank" class="text-blue-500">Xem</a></td>
-                        <td class="p-3 border"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs">Xong</span></td>
+                        <td class="p-3 border"><a href="${links[i]}" target="_blank" class="text-blue-500 underline">Xem</a></td>
+                        <td class="p-3 border"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">Xong</span></td>
                     `;
                 } catch (error) {
-                    row.cells[1].innerHTML = "Lỗi quét link này!";
+                    row.innerHTML = `<td class="p-3 border">${i+1}</td><td class="p-3 border text-red-500 text-center" colspan="7">Lỗi link này hoặc API bận</td>`;
                 }
             }
             btn.disabled = false;
             btn.innerText = "🚀 Quét Data Ngay";
         }
-
-        function exportToExcel() {
-            const table = document.getElementById("resultTable");
-            const wb = XLSX.utils.table_to_book(table);
-            XLSX.writeFile(wb, "TikTok_Report.xlsx");
-        }
-
-        function clearAll() {
-            document.getElementById('inputLinks').value = '';
-            document.getElementById('tableBody').innerHTML = '';
-        }
-    </script>
-</body>
-</html>
