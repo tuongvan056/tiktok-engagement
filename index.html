@@ -3,47 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Report Tool - Version 2.0</title>
+    <title>TikTok Report Tool - Full Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body class="bg-slate-50 p-4">
-    <div class="max-w-6xl mx-auto bg-white shadow-xl rounded-xl p-6">
-        <h1 class="text-3xl font-bold text-center text-red-500 mb-6">🎬 TIKTOK REPORT TOOL</h1>
+    <div class="max-w-7xl mx-auto bg-white shadow-xl rounded-xl p-6 border border-gray-200">
+        <h1 class="text-3xl font-bold text-center text-red-500 mb-6 flex items-center justify-center gap-2">
+            🎬 TIKTOK REPORT TOOL
+        </h1>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 text-center">
-            <div class="bg-blue-500 text-white p-4 rounded-lg shadow">
-                <p class="text-sm uppercase font-semibold">Tổng View</p>
-                <p id="totalViews" class="text-3xl font-bold">0</p>
+            <div class="bg-blue-500 text-white p-4 rounded-lg shadow transform transition hover:scale-105">
+                <p class="text-xs uppercase font-bold opacity-80">Tổng View</p>
+                <p id="totalViews" class="text-4xl font-black">0</p>
             </div>
-            <div class="bg-pink-500 text-white p-4 rounded-lg shadow">
-                <p class="text-sm uppercase font-semibold">Tổng Tim ❤️</p>
-                <p id="totalLikes" class="text-3xl font-bold">0</p>
+            <div class="bg-pink-500 text-white p-4 rounded-lg shadow transform transition hover:scale-105">
+                <p class="text-xs uppercase font-bold opacity-80">Tổng Tim ❤️</p>
+                <p id="totalLikes" class="text-4xl font-black">0</p>
             </div>
         </div>
 
-        <textarea id="inputLinks" class="w-full h-32 p-3 border-2 rounded-lg mb-4" placeholder="Dán link TikTok vào đây (mỗi dòng 1 link)..."></textarea>
+        <textarea id="inputLinks" class="w-full h-32 p-3 border-2 border-gray-200 rounded-lg mb-4 focus:border-red-400 outline-none transition shadow-inner" placeholder="Dán link TikTok vào đây (mỗi dòng 1 link)..."></textarea>
         
-        <div class="flex flex-wrap gap-2 mb-6">
-            <button onclick="startScanning()" id="btnScan" class="bg-red-500 text-white px-6 py-2 rounded-lg font-bold">🚀 Quét Data Ngay</button>
-            <button onclick="clearAll()" class="bg-gray-500 text-white px-6 py-2 rounded-lg font-bold">🧹 Xoá Sạch</button>
-            <button onclick="exportToExcel()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold">📥 Xuất Excel</button>
+        <div class="flex flex-wrap justify-center gap-3 mb-6">
+            <button onclick="startScanning()" id="btnScan" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-full font-bold shadow-lg transition active:scale-95">🚀 Quét Data Ngay</button>
+            <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-full font-bold shadow-lg transition">🧹 Xoá Sạch</button>
+            <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold shadow-lg transition">📥 Xuất Excel</button>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse border" id="resultTable">
-                <thead class="bg-gray-800 text-white">
+        <div class="overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
+            <table class="w-full border-collapse" id="resultTable">
+                <thead class="bg-slate-800 text-white text-xs uppercase">
                     <tr>
                         <th class="p-3 border">#</th>
                         <th class="p-3 border">Ảnh</th>
-                        <th class="p-3 border">Caption</th>
+                        <th class="p-3 border text-left">Caption</th>
                         <th class="p-3 border">View</th>
                         <th class="p-3 border">Like</th>
                         <th class="p-3 border">Cmt</th>
-                        <th class="p-3 border">Trạng thái</th>
+                        <th class="p-3 border">Share</th>
+                        <th class="p-3 border text-orange-500">Save</th>
+                        <th class="p-3 border text-center">Trạng thái</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody"></tbody>
+                <tbody id="tableBody" class="text-gray-700 font-medium"></tbody>
             </table>
         </div>
     </div>
@@ -59,16 +63,16 @@
             if(links.length === 0) return alert("Vui lòng dán link!");
 
             btn.disabled = true;
-            btn.innerText = "Đang quét...";
+            btn.innerText = "⏳ Đang quét...";
             tableBody.innerHTML = "";
             let tView = 0, tLike = 0;
 
             for(let i=0; i<links.length; i++) {
                 let row = tableBody.insertRow();
-                row.innerHTML = `<td class="p-3 border text-center">${i+1}</td><td colspan="6" class="p-3 border text-center text-blue-500">Đang lấy dữ liệu...</td>`;
+                row.className = "hover:bg-gray-50 border-b";
+                row.innerHTML = `<td class="p-3 text-center border font-bold">${i+1}</td><td colspan="8" class="p-3 text-center text-blue-500 animate-pulse italic">Đang phân tích dữ liệu video...</td>`;
                 
                 try {
-                    // Thử dùng API 1: Tikwm
                     let res = await fetch(`https://www.tikwm.com/api/?url=${encodeURIComponent(links[i])}`);
                     let json = await res.json();
                     
@@ -80,19 +84,21 @@
                         likeTxt.innerText = tLike.toLocaleString();
 
                         row.innerHTML = `
-                            <td class="p-3 border text-center">${i+1}</td>
-                            <td class="p-3 border text-center"><img src="${d.cover}" class="w-12 h-12 mx-auto rounded"></td>
-                            <td class="p-3 border text-sm">${d.title.substring(0,40)}...</td>
-                            <td class="p-3 border text-center font-bold text-blue-600">${d.play_count.toLocaleString()}</td>
-                            <td class="p-3 border text-center font-bold text-pink-600">${d.digg_count.toLocaleString()}</td>
-                            <td class="p-3 border text-center">${d.comment_count.toLocaleString()}</td>
-                            <td class="p-3 border text-center text-green-500 font-bold text-xs uppercase">Xong</td>
+                            <td class="p-3 text-center border font-bold text-gray-500">${i+1}</td>
+                            <td class="p-3 text-center border"><img src="${d.cover}" class="w-12 h-12 mx-auto rounded-lg shadow-sm border"></td>
+                            <td class="p-3 text-xs border max-w-xs truncate" title="${d.title}">${d.title || 'Không có caption'}</td>
+                            <td class="p-3 text-center border font-bold text-blue-600">${d.play_count.toLocaleString()}</td>
+                            <td class="p-3 text-center border font-bold text-pink-600">${d.digg_count.toLocaleString()}</td>
+                            <td class="p-3 text-center border">${d.comment_count.toLocaleString()}</td>
+                            <td class="p-3 text-center border text-green-600 font-semibold">${d.share_count.toLocaleString()}</td>
+                            <td class="p-3 text-center border text-orange-600 font-semibold">${d.collect_count.toLocaleString()}</td>
+                            <td class="p-3 text-center border"><span class="text-[10px] bg-green-100 text-green-700 px-2 py-1 rounded font-black uppercase">Xong</span></td>
                         `;
                     } else {
-                        throw new Error("API Error");
+                        throw new Error();
                     }
                 } catch (e) {
-                    row.innerHTML = `<td class="p-3 border text-center">${i+1}</td><td colspan="6" class="p-3 border text-center text-red-500 font-semibold italic">Link lỗi hoặc API đang bận. Vui lòng thử lại sau.</td>`;
+                    row.innerHTML = `<td class="p-3 text-center border font-bold">${i+1}</td><td colspan="8" class="p-3 text-center text-red-500 font-medium italic text-sm">Lỗi: Link không hợp lệ hoặc API bận.</td>`;
                 }
             }
             btn.disabled = false;
@@ -100,7 +106,9 @@
         }
 
         function exportToExcel() {
-            XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById('resultTable')), 'Bao-Cao-TikTok.xlsx');
+            const table = document.getElementById('resultTable');
+            const wb = XLSX.utils.table_to_book(table);
+            XLSX.writeFile(wb, `TikTok_Report_Full_${new Date().toLocaleDateString()}.xlsx`);
         }
 
         function clearAll() {
