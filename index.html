@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TikTok Channel Analytics - Air Time Edition</title>
+    <title>TikTok Channel Analytics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -59,7 +59,7 @@
                         <th class="p-4 border">#</th>
                         <th class="p-4 border text-center">Ảnh</th>
                         <th class="p-4 border text-left">Caption</th>
-                        <th class="p-4 border text-center text-amber-400">Thời Gian Air</th>
+                        <th class="p-4 border text-center">Thời Gian Air</th>
                         <th class="p-4 border text-center">View</th>
                         <th class="p-4 border text-center text-pink-400">Like</th>
                         <th class="p-4 border text-center text-indigo-400">Cmt</th>
@@ -77,17 +77,14 @@
     </div>
 
     <script>
-        // Hàm tự động đổi Timestamp thành định dạng YYYY-MM-DD HH:mm
-        def formatAirTime(timestamp) {
+        function formatAirTime(timestamp) {
             if (!timestamp) return "N/A";
-            const date = new Date(timestamp * 1000); // Đổi giây sang mili giây
-            
+            const date = new Date(timestamp * 1000);
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
-            
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         }
 
@@ -130,7 +127,6 @@
                         tS += v.share_count; 
                         tSa += v.collect_count;
 
-                        // Chuyển đổi thời gian air bài từ dữ liệu gốc (v.create_time)
                         const formattedTime = formatAirTime(v.create_time);
 
                         const row = tableBody.insertRow();
@@ -142,35 +138,4 @@
                             <td class="p-4 border text-center font-bold text-amber-700 whitespace-nowrap">${formattedTime}</td>
                             <td class="p-4 border text-center text-blue-700 font-black">${v.play_count.toLocaleString()}</td>
                             <td class="p-4 border text-center text-pink-600 font-black">${v.digg_count.toLocaleString()}</td>
-                            <td class="p-4 border text-center text-indigo-600">${v.comment_count.toLocaleString()}</td>
-                            <td class="p-4 border text-center text-emerald-600">${v.share_count.toLocaleString()}</td>
-                            <td class="p-4 border text-center text-orange-600">${v.collect_count.toLocaleString()}</td>
-                        `;
-                    });
-
-                    vTxt.innerText = tV.toLocaleString();
-                    lTxt.innerText = tL.toLocaleString();
-                    cTxt.innerText = tC.toLocaleString();
-                    sTxt.innerText = tS.toLocaleString();
-                    saTxt.innerText = tSa.toLocaleString();
-
-                } else {
-                    tableBody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-red-500 font-bold">Không tìm thấy kênh này hoặc kênh để chế độ riêng tư.</td></tr>`;
-                }
-            } catch (e) {
-                tableBody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-red-500 font-bold">Lỗi kết nối API. Hãy thử lại sau!</td></tr>`;
-            }
-            
-            btn.disabled = false;
-            btn.innerText = "🔥 Quét Kênh Ngay";
-        }
-
-        function exportToExcel() {
-            const table = document.getElementById('resultTable');
-            const wb = XLSX.utils.table_to_book(table);
-            const channelName = document.getElementById('inputUser').value || 'TikTok';
-            XLSX.writeFile(wb, `Bao_Cao_Kenh_${channelName}.xlsx`);
-        }
-    </script>
-</body>
-</html>
+                            <td class="p-4 border text-
